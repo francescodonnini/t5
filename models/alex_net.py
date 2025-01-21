@@ -1,9 +1,11 @@
 from keras import activations, layers, models
 
 
-def alex_net(resizer: layers.Layer):
-    model = models.Sequential([
-        resizer,
+def alex_net(resizer: layers.Layer = None):
+    l = []
+    if resizer:
+        l.append(resizer)
+    l.extend([
         layers.Conv2D(96, (11, 11), (4, 4),
                       activation=activations.relu),
         layers.BatchNormalization(),
@@ -23,6 +25,6 @@ def alex_net(resizer: layers.Layer):
         layers.Dropout(0.5),
         layers.Dense(4096),
         layers.Dropout(0.5),
-        layers.Dense(2, activation=activations.softmax)
-    ])
+        layers.Dense(2, activation=activations.softmax)])
+    model = models.Sequential(l)
     return model

@@ -1,7 +1,8 @@
-from keras import activations, layers, models
+from keras import activations, layers
+from typing import Tuple
 
 class ResBlock(layers.Layer):
-    def __init__(self, k: (int, int), n: int, s: (int, int), **kwargs):
+    def __init__(self, k: Tuple[int, int], n: int, s: Tuple[int, int], **kwargs):
         super().__init__(**kwargs)
         self.conv1 = layers.Conv2D(n, k, s)
         self.bn1   = layers.BatchNormalization()
@@ -19,7 +20,7 @@ class ResBlock(layers.Layer):
 
 
 class Resizer(layers.Layer):
-    def __init__(self, target: (int, int), interpolation='bilinear', r: int=4, **kwargs):
+    def __init__(self, target: Tuple[int, int], interpolation='bilinear', r: int=4, **kwargs):
         super().__init__(**kwargs)
         ## learnable layers
         self.conv1 = layers.Conv2D(16, (7, 7), activation=activations.leaky_relu)
