@@ -25,6 +25,6 @@ def alex_net(resizer: layers.Layer = None):
         layers.Dropout(0.5),
         layers.Dense(4096),
         layers.Dropout(0.5),
-        layers.Dense(2, activation=activations.softmax)])
+        layers.Dense(2, activation=activations.sigmoid)])
     model = models.Sequential(l)
     return model

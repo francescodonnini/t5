@@ -11,7 +11,13 @@ def center(dataset):
     return list(map(lambda x: (x[0], x[1] - mean), dataset))
 
 
-def load_data(data_path: str) -> List[Tuple[int, np.array]]:
+from PIL import Image
+from typing import List, Tuple
+import numpy as np
+import os
+import pathlib
+
+def load_data(data_path: str) -> Tuple[List[np.array], List[int]]:
     def lbl_mapping(s: str) -> int:
         if s.startswith('NORMAL'):
             return 0
@@ -24,8 +30,14 @@ def load_data(data_path: str) -> List[Tuple[int, np.array]]:
         return lbl_mapping(os.path.basename(i.filename))
 
     def array(i: Image):
-        return np.asarray(i, dtype=np.uint8) / 255
+        return np.asarray(i, dtype=np.uint8)
 
     data_dir = pathlib.Path(os.path.join(data_path, 'train'))
-    images = data_dir.glob('**/*.jpeg')
-    return list(map(lambda i: (lbl(i), array(i)), map(lambda i: Image.open(i), images)))
+    xs = []
+    ys = []
+    for i in data_dir.glob('**/*.jpeg'):
+        i = Image.open(i)
+        xs.append(array(i))
+        ys.append(lbl(i))
+    return (xs, ys)
+
