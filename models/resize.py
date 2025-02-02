@@ -19,8 +19,8 @@ class ResBlock(layers.Layer):
         return self.sum(x, z)
 
 
-class Resizer(layers.Layer):
-    def __init__(self, target: Tuple[int, int], interpolation='bilinear', r: int=4, **kwargs):
+class Resize(layers.Layer):
+    def __init__(self, width: int, height: int, interpolation='bilinear', r: int=4, **kwargs):
         super().__init__(**kwargs)
         ## learnable layers
         self.conv1 = layers.Conv2D(16, (7, 7), activation=activations.leaky_relu)
@@ -32,7 +32,7 @@ class Resizer(layers.Layer):
         self.conv4 = layers.Conv2D(3, (7, 7), (1, 1))
         ## non-learnable layers
         self.sum  = layers.Add()
-        self.sampler = layers.UpSampling2D(target, interpolation=interpolation)
+        self.sampler = layers.UpSampling2D((width, height), data_format='channels_last', interpolation=interpolation)
 
     def __call__(self, x):
         y = self.conv1(x)
@@ -48,4 +48,3 @@ class Resizer(layers.Layer):
         z = self.conv4(z)
         x = self.sampler(x)
         return self.sum(x, z)
-

@@ -1,11 +1,20 @@
+from typing import List
+
 from keras import activations, layers, models
 
 
-def alex_net(resizer: layers.Layer = None):
-    l = []
-    if resizer:
-        l.append(resizer)
+def create_model(
+        width: int,
+        height: int,
+        data_augmentation: layers.Layer=None,
+        resize: layers.Layer=None):
+    l: List[layers.Layer] = []
+    if data_augmentation is not None:
+        l.append(data_augmentation)
+    if resize is not None:
+        l.append(resize)
     l.extend([
+        layers.Rescaling(1./255, input_shape=(width, height, 1)),
         layers.Conv2D(96, (11, 11), (4, 4),
                       activation=activations.relu),
         layers.BatchNormalization(),
