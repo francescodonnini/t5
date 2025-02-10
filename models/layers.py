@@ -1,9 +1,10 @@
+import random
+import numpy as np
 from collections.abc import Iterable
 from typing import List, Any
 
 from keras import layers
-import tensorflow as tf
-import random
+
 '''
 RandomSwitch supplies the input x to one of the layers (randomly chosen) stored in choices
 with probability p

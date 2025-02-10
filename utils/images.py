@@ -12,3 +12,10 @@ def visualize(original, augmented):
     plt.subplot(1, 2, 2)
     plt.title('Augmented image')
     plt.imshow(augmented, cmap='gray')
+
+
+def show(i):
+    i = np.array(i)
+    plt.subplot(1, 2, 1)
+    plt.title('image')
+    plt.imshow(i, cmap='gray')
