@@ -1,3 +1,4 @@
+import os
 from typing import Tuple
 
 from keras import layers
@@ -29,8 +30,8 @@ def conv(
         strides: int = 1,
         padding: int | str = 'same',
         activation: str='relu',
-        light: bool = True,
         **kwargs):
+    light = True if os.environ.get('NO_BATCH_NORMALIZATION') is None else False
     return ConvBlock(filters, kernel_size, strides, padding, activation, light, **kwargs)
 
 
