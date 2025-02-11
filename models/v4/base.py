@@ -10,15 +10,17 @@ class ConvBlock(layers.Layer):
                  strides: int,
                  padding: int | str,
                  activation: str,
+                 light: bool = True,
                  **kwargs):
         super(ConvBlock, self).__init__(**kwargs)
         self.conv = layers.Conv2D(filters=filters, kernel_size=kernel_size, strides=strides, padding=padding, activation=activation)
-        self.norm = layers.BatchNormalization()
+        self.norm = None if light else layers.BatchNormalization()
         self.activation = layers.Activation(activation)
 
     def call(self, inputs) -> layers.Layer:
         x = self.conv(inputs)
-        x = self.norm(x)
+        if self.norm is not None:
+            x = self.norm(x)
         return self.activation(x)
 
 def conv(
@@ -27,8 +29,9 @@ def conv(
         strides: int = 1,
         padding: int | str = 'same',
         activation: str='relu',
+        light: bool = True,
         **kwargs):
-    return ConvBlock(filters, kernel_size, strides, padding, activation, **kwargs)
+    return ConvBlock(filters, kernel_size, strides, padding, activation, light, **kwargs)
 
 
 class Stem(layers.Layer):

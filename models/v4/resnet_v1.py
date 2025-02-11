@@ -1,8 +1,7 @@
 from keras import layers
 
+from models.v4.base import conv
 from models.v4.resnet_vx import InceptionWVx, ReductionBVx, InceptionAVx
-from models.v4.base import conv, InceptionA
-
 
 class StemV1(layers.Layer):
     def __init__(self, **kwargs):
