@@ -25,7 +25,7 @@ def conv(
         filters: int,
         kernel_size: int|Tuple[int, int],
         strides: int = 1,
-        padding: int | str = 'valid',
+        padding: int | str = 'same',
         activation: str='relu',
         **kwargs):
     return ConvBlock(filters, kernel_size, strides, padding, activation, **kwargs)
@@ -34,22 +34,19 @@ def conv(
 class Stem(layers.Layer):
     def __init__(self, **kwargs):
         super(Stem, self).__init__(**kwargs)
-        self.c1 = conv(32, 3, padding='valid', strides=2)
+        self.c1 = conv(32, 3, 2, padding='valid')
         self.c2 = conv(32, 3, padding='valid')
-        self.c3 = conv(64, 3, padding='same')
+        self.c3 = conv(64, 3)
         self.c4 = conv(96, 3, 2, padding='valid')
         self.c4p = layers.MaxPool2D(3, 2, padding='valid')
-        self.c6_1 = conv(64, 1, padding='same')
+        self.c6_1 = conv(64, 1)
         self.c6_2 = conv(96, 3, padding='valid')
-        self.c7_1 = conv(64, 1, padding='same')
-        self.c7_2 = conv(64, (7, 1), padding='same')
-        self.c7_3 = conv(64, (1, 7), padding='same')
+        self.c7_1 = conv(64, 1)
+        self.c7_2 = conv(64, (7, 1))
+        self.c7_3 = conv(64, (1, 7))
         self.c7_4 = conv(96, 3, padding='valid')
-        self.c9p = conv(192, 3, padding='valid')
-        self.c9 = layers.MaxPool2D(strides=2, padding='valid')
-        self.concat1 = layers.Concatenate()
-        self.concat2 = layers.Concatenate()
-        self.concat3 = layers.Concatenate()
+        self.c9p = conv(192, 3, 2, padding='valid')
+        self.c9 = layers.MaxPool2D(3, strides=2, padding='valid')
 
     def call(self, inputs):
         x = self.c1(inputs)
@@ -57,32 +54,31 @@ class Stem(layers.Layer):
         x = self.c3(x)
         xp = self.c4p(x)
         x = self.c4(x)
-        x = self.concat1([xp, x])
+        x = layers.Concatenate()([xp, x])
         xp = self.c6_1(x)
         xp = self.c6_2(xp)
         x = self.c7_1(x)
         x = self.c7_2(x)
         x = self.c7_3(x)
         x = self.c7_4(x)
-        x = self.concat2([xp, x])
+        x = layers.Concatenate()([xp, x])
         xp = self.c9p(x)
         x = self.c9(x)
-        return self.concat3([xp, x])
+        return layers.Concatenate()([xp, x])
 
 
 class InceptionA(layers.Layer):
     def __init__(self, **kwargs):
         super(InceptionA, self).__init__(**kwargs)
-        self.c1_1 = layers.AvgPool2D(3, 1)
-        self.c2_1 = conv(96, 1, padding='same')
-        self.c1_2 = conv(96, 1, padding='same')
-        self.c1_3 = conv(64, 1, padding='same')
-        self.c2_3 = conv(96, 3, padding='same')
-        self.c1_4 = conv(64, 1, padding='same')
-        self.c2_4 = conv(96, 1, padding='same')
-        self.c3_4 = conv(96, 3, padding='same')
-        self.c4_4 = conv(96, 3, padding='same')
-        self.concat = layers.Concatenate()
+        self.c1_1 = layers.AvgPool2D(3, 1, padding='same')
+        self.c2_1 = conv(96, 1)
+        self.c1_2 = conv(96, 1)
+        self.c1_3 = conv(64, 1)
+        self.c2_3 = conv(96, 3)
+        self.c1_4 = conv(64, 1)
+        self.c2_4 = conv(96, 1)
+        self.c3_4 = conv(96, 3)
+        self.c4_4 = conv(96, 3)
 
     def call(self, inputs):
         x1 = self.c1_1(inputs)
@@ -94,53 +90,53 @@ class InceptionA(layers.Layer):
         x4 = self.c2_4(x4)
         x4 = self.c3_4(x4)
         x4 = self.c4_4(x4)
-        return self.concat([x1, x2, x3, x4])
+        return layers.Concatenate()([x1, x2, x3, x4])
 
 
 class InceptionB(layers.Layer):
     def __init__(self, **kwargs):
         super(InceptionB, self).__init__(**kwargs)
-        self.c1_1 = layers.AvgPool2D(3, 1)
-        self.c2_1 = conv(128, 1, padding='same')
-        self.c1_2 = conv(192, 1, padding='same')
-        self.c2_2 = conv(224, (1, 7), padding='same')
-        self.c3_2 = conv(256, (1, 7), padding='same')
-        self.c1_3 = conv(192, 1, padding='same')
-        self.c2_3 = conv(192, (1, 7), padding='same')
-        self.c3_3 = conv(224, (7, 1), padding='same')
-        self.c4_3 = conv(244, (1, 7), padding='same')
-        self.c5_3 = conv(256, (7, 1), padding='same')
-        self.concat = layers.Concatenate()
+        self.c1_1 = layers.AvgPool2D(3, 1, padding='same')
+        self.c2_1 = conv(128, 1)
+        self.c1_2 = conv(384, 1)
+        self.c1_3 = conv(192, 1)
+        self.c2_3 = conv(224, (1, 7))
+        self.c3_3 = conv(256, (7, 1))
+        self.c1_4 = conv(192, 1)
+        self.c2_4 = conv(192, (1, 7))
+        self.c3_4 = conv(224, (7, 1))
+        self.c4_4 = conv(224, (1, 7))
+        self.c5_4 = conv(256, (7, 1))
 
     def call(self, inputs):
         x1 = self.c1_1(inputs)
         x1 = self.c2_1(x1)
         x2 = self.c1_2(inputs)
-        x2 = self.c2_2(x2)
-        x2 = self.c3_2(x2)
         x3 = self.c1_3(inputs)
         x3 = self.c2_3(x3)
         x3 = self.c3_3(x3)
-        x3 = self.c4_3(x3)
-        x3 = self.c5_3(x3)
-        return self.concat([x1, x2, x3])
+        x4 = self.c1_4(inputs)
+        x4 = self.c2_4(x4)
+        x4 = self.c3_4(x4)
+        x4 = self.c4_4(x4)
+        x4 = self.c5_4(x4)
+        return layers.Concatenate()([x1, x2, x3, x4])
 
 
 class InceptionC(layers.Layer):
     def __init__(self, **kwargs):
         super(InceptionC, self).__init__(**kwargs)
-        self.c1_1 = layers.AvgPool2D(3, 1)
-        self.c2_1 = conv(256, 1, padding='same')
-        self.c1_2 = conv(256, 1, padding='same')
-        self.c1_3 = conv(384, 1, padding='same')
-        self.c2_3 = conv(256, (1, 3), padding='same')
-        self.c2_3p = conv(256, (3, 1), padding='same')
-        self.c1_4 = conv(384, 1, padding='same')
-        self.c2_4 = conv(448, (1, 3), padding='same')
-        self.c3_4 = conv(512, (3, 1), padding='same')
-        self.c4_4 = conv(256, (3, 1), padding='same')
-        self.c4_4p = conv(256, (1, 3), padding='same')
-        self.concat = layers.Concatenate()
+        self.c1_1 = layers.AvgPool2D(3, 1, padding='same')
+        self.c2_1 = conv(256, 1)
+        self.c1_2 = conv(256, 1)
+        self.c1_3 = conv(384, 1)
+        self.c2_3 = conv(256, (1, 3))
+        self.c2_3p = conv(256, (3, 1))
+        self.c1_4 = conv(384, 1)
+        self.c2_4 = conv(448, (1, 3))
+        self.c3_4 = conv(512, (3, 1))
+        self.c4_4 = conv(256, (3, 1))
+        self.c4_4p = conv(256, (1, 3))
 
     def call(self, inputs):
         x1 = self.c1_1(inputs)
@@ -154,7 +150,7 @@ class InceptionC(layers.Layer):
         x4 = self.c3_4(x4)
         x4_1 = self.c4_4(x4)
         x4_2 = self.c4_4p(x4)
-        return self.concat([x1, x2, x3_1, x3_2, x4_1, x4_2])
+        return layers.Concatenate()([x1, x2, x3_1, x3_2, x4_1, x4_2])
 
 
 class ReductionA(layers.Layer):
@@ -162,10 +158,9 @@ class ReductionA(layers.Layer):
         super(ReductionA, self).__init__(**kwargs)
         self.c1_1 = layers.MaxPool2D(3, 2, padding='valid')
         self.c1_2 = conv(n, 3, 2, padding='valid')
-        self.c1_3 = conv(k, 1, padding='same')
-        self.c2_3 = conv(l, 3, padding='same')
+        self.c1_3 = conv(k, 1)
+        self.c2_3 = conv(l, 3)
         self.c3_3 = conv(m, 3, 2, padding='valid')
-        self.concat = layers.Concatenate()
 
     def call(self, inputs):
         x1 = self.c1_1(inputs)
@@ -173,26 +168,26 @@ class ReductionA(layers.Layer):
         x3 = self.c1_3(inputs)
         x3 = self.c2_3(x3)
         x3 = self.c3_3(x3)
-        return self.concat([x1, x2, x3])
+        return layers.Concatenate()([x1, x2, x3])
 
 
 class ReductionB(layers.Layer):
     def __init__(self, **kwargs):
         super(ReductionB, self).__init__(**kwargs)
         self.c1_1 = layers.MaxPool2D(3, 2, padding='valid')
-        self.c1_2 = conv(192, 1, padding='same')
+        self.c1_2 = conv(192, 1)
         self.c2_2 = conv(192, 3, 2, padding='valid')
-        self.c1_3 = conv(256, 1, padding='same')
-        self.c2_3 = conv(256, (1, 7), 2, padding='same')
-        self.c3_3 = conv(320, (7, 1), padding='same')
+        self.c1_3 = conv(256, 1)
+        self.c2_3 = conv(256, (1, 7))
+        self.c3_3 = conv(320, (7, 1))
         self.c4_3 = conv(320, 3, 2, padding='valid')
-        self.concat = layers.Concatenate()
 
     def call(self, inputs):
         x1 = self.c1_1(inputs)
-        x2 = self.c1_2(x1)
+        x2 = self.c1_2(inputs)
         x2 = self.c2_2(x2)
         x3 = self.c1_3(inputs)
         x3 = self.c2_3(x3)
         x3 = self.c3_3(x3)
-        return self.concat([x1, x2, x3])
+        x3 = self.c4_3(x3)
+        return layers.Concatenate()([x1, x2, x3])
