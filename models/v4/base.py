@@ -31,7 +31,9 @@ def conv(
         padding: int | str = 'same',
         activation: str='relu',
         **kwargs):
-    light = True if os.environ.get('NO_BATCH_NORMALIZATION') is None else False
+    bn = os.environ.get('BATCH_NORMALIZATION', 'n')
+    bn = bn.lower()
+    light = True if bn == 'y' else False
     return ConvBlock(filters, kernel_size, strides, padding, activation, light, **kwargs)
 
 
