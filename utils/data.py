@@ -49,12 +49,12 @@ def from_dir(
 
 def from_zip(
         data_path: str,
+        selector: Callable[[str], bool],
         resize: Tuple[int, int],
-        resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear,
-        file_format: str='.jpeg') -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
+        resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
     with zf.ZipFile(data_path) as z:
         images = []
-        for file in filter(lambda f: f.endswith(file_format), z.namelist()):
+        for file in filter(lambda f: selector(f), z.namelist()):
             i = Image.open(io.BytesIO(z.read(file)))
             i.filename = file
             images.append(i)
