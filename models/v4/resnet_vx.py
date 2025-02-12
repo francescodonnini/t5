@@ -29,7 +29,7 @@ class InceptionAVx(layers.Layer):
         x = layers.Add()([inputs, x])
         return activations.relu(x)
 
-
+# Inception[B,C]V[1,2]
 class InceptionWVx(layers.Layer):
     def __init__(self, filters: List[int], kernel_size: List[int|Tuple[int, int]], **kwargs):
         super(InceptionWVx, self).__init__(**kwargs)

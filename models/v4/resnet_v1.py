@@ -1,6 +1,6 @@
 from keras import layers
 
-from models.v4.base import conv
+from models.v4.base import conv, ReductionA
 from models.v4.resnet_vx import InceptionWVx, ReductionBVx, InceptionAVx
 
 class StemV1(layers.Layer):
@@ -8,13 +8,11 @@ class StemV1(layers.Layer):
         super(StemV1, self).__init__(**kwargs)
         self.c1 = conv(32, 3, strides=2, padding='valid')
         self.c2 = conv(32, 3, padding='valid')
-        self.c3 = conv(64, 3, padding='same')
+        self.c3 = conv(64, 3)
         self.c4 = layers.MaxPool2D(3, 2, padding='valid')
-        self.c5 = conv(64, 3, padding='same')
-        self.c6 = layers.MaxPool2D(3, 2, padding='valid')
-        self.c7 = conv(80, 1, padding='same')
-        self.c8 = conv(192, 3, padding='valid')
-        self.c9 = conv(256, 3, 2, padding='valid')
+        self.c5 = conv(80, 1)
+        self.c6 = conv(192, 3, padding='valid')
+        self.c7 = conv(256, 3, 2, padding='valid')
 
     def call(self, inputs):
         x = self.c1(inputs)
@@ -23,9 +21,7 @@ class StemV1(layers.Layer):
         x = self.c4(x)
         x = self.c5(x)
         x = self.c6(x)
-        x = self.c7(x)
-        x = self.c8(x)
-        return self.c9(x)
+        return self.c7(x)
 
 
 def inception_a(**kwargs):
@@ -45,3 +41,7 @@ def inception_c(**kwargs):
 
 def reduction_b(**kwargs):
     return ReductionBVx(256, 256, 256, **kwargs)
+
+
+def reduction_a(**kwargs):
+    return ReductionA(192, 192, 256, 384, **kwargs)

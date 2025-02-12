@@ -34,7 +34,7 @@ def resnet_v1(width: int, height: int, a: int=5, b: int=10, c: int=5, data_augme
     m.add(v1.StemV1(**kwargs))
     for _ in range(a):
         m.add(v1.inception_a(**kwargs))
-    m.add(ReductionA(192, 192, 256, 384, **kwargs))
+    m.add(v1.reduction_a(**kwargs))
     return common_layers(m, b, c, version=1, **kwargs)
 
 
@@ -46,7 +46,7 @@ def resnet_v2(width: int, height: int, a: int=5, b: int=10, c: int=5, data_augme
     m.add(Stem(**kwargs))
     for _ in range(a):
         m.add(v2.inception_a(**kwargs))
-    m.add(ReductionA(256, 256, 384, 384, **kwargs))
+    m.add(v2.reduction_a(**kwargs))
     return common_layers(m, b, c, version=2, **kwargs)
 
 
