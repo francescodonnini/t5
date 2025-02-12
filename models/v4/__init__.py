@@ -1,19 +1,11 @@
-from typing import Tuple
-
 from keras import layers, models
 
-from models.v4.base import Stem, InceptionA, InceptionB, InceptionC, ReductionA, ReductionB
-from models.v4.resnet_vx import InceptionAVx
 import models.v4.resnet_v1 as v1
 import models.v4.resnet_v2 as v2
+from models.common import model_head
+from models.v4.base import Stem, InceptionA, InceptionB, InceptionC, ReductionA, ReductionB
+from models.v4.resnet_vx import InceptionAVx
 
-def model_head(shape: Tuple[int, int, int], data_augmentation: layers.Layer=None) -> models.Sequential:
-    m = models.Sequential()
-    m.add(layers.Input(shape=shape))
-    if data_augmentation is not None:
-        m.add(data_augmentation)
-    m.add(layers.Rescaling(1. / 255))
-    return m
 
 def inception(width: int, height: int, a: int=4, b: int=7, c: int=3, data_augmentation: layers.Layer=None, **kwargs):
     m = model_head((width, height, 1), data_augmentation=data_augmentation)
