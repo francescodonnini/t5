@@ -1,11 +1,15 @@
+import io
 import os
 import pathlib
 import random
-from typing import List, Tuple, Callable
+import zipfile as zf
+from typing import List, Tuple, Callable, Iterable
+
 import numpy as np
 import numpy.typing as npt
 from PIL import Image
 from keras import utils
+
 
 def mklbl(i: Image) -> int:
     s = os.path.basename(i.filename)
@@ -34,29 +38,49 @@ def nearest(i: Image, size: Tuple[int, int]) -> Image.Image:
     return i.resize(size, Image.Resampling.NEAREST)
 
 
-def load_data(
+def from_dir(
         data_path: str,
         resize: Tuple[int, int],
-        resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
-    data_path = pathlib.Path(data_path)
+        resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear,
+        file_format: str='.jpeg') -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
+    images = [Image.open(p) for p in pathlib.Path(data_path).glob(f'**/*{file_format}')]
+    return _prepare_data(images, resize, resample)
+
+
+def from_zip(
+        data_path: str,
+        resize: Tuple[int, int],
+        resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear,
+        file_format: str='.jpeg') -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
+    with zf.ZipFile(data_path) as z:
+        images = []
+        for file in filter(lambda f: f.endswith(file_format), z.namelist()):
+            i = Image.open(io.BytesIO(z.read(file)))
+            i.filename = file
+            images.append(i)
+        return _prepare_data(images, resize, resample)
+
+
+def _prepare_data(
+        images: Iterable[Image.Image],
+        resize,
+        resample):
     xs: List[npt.NDArray[np.uint8]] = []
     ys: List[int] = []
-    for i in data_path.glob('**/*.jpeg'):
-        i = Image.open(i)
+    for i in images:
         ys.append(mklbl(i))
         if resize is not None:
             i = resample(i, resize)
         xs.append(np.asarray(i, dtype=np.uint8).reshape(i.height, i.width, 1))
     return np.asarray(xs), utils.to_categorical(ys, num_classes=2)
 
-
 def over_sampling(
         xs: npt.NDArray[np.uint8],
         ys: npt.NDArray[np.float32]) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
-    P = len(list(filter(lambda y: y[1] > 0, ys)))
-    N = int(abs(len(ys) - P))
-    gap = int(abs(P - N))
-    which = 0 if N < P else 1
+    positives = len(list(filter(lambda y: y[1] > 0, ys)))
+    negatives = int(abs(len(ys) - positives))
+    gap = int(abs(positives - negatives))
+    which = 0 if negatives < positives else 1
     idx_min = list(filter(lambda j: ys[j][which] > 0, range(len(ys))))
     x_min = [xs[i] for i in idx_min]
     y_min = [ys[i] for i in idx_min]
