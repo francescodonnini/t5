@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from keras import layers, models
 
 from models.v4.base import Stem, InceptionA, InceptionB, InceptionC, ReductionA, ReductionB
@@ -5,11 +7,16 @@ from models.v4.resnet_vx import InceptionAVx
 import models.v4.resnet_v1 as v1
 import models.v4.resnet_v2 as v2
 
-def inception(width: int, height: int, a: int=4, b: int=7, c: int=3, data_augmentation: layers.Layer=None, **kwargs):
+def model_head(shape: Tuple[int, int, int], data_augmentation: layers.Layer=None) -> models.Sequential:
     m = models.Sequential()
+    m.add(layers.Input(shape=shape))
     if data_augmentation is not None:
         m.add(data_augmentation)
-    m.add(layers.Rescaling(1. / 255, input_shape=(width, height, 1)))
+    m.add(layers.Rescaling(1. / 255, input_shape=shape))
+    return m
+
+def inception(width: int, height: int, a: int=4, b: int=7, c: int=3, data_augmentation: layers.Layer=None, **kwargs):
+    m = model_head((width, height, 1), data_augmentation=data_augmentation)
     m.add(Stem())
     for _ in range(a):
         m.add(InceptionA(**kwargs))
@@ -27,10 +34,7 @@ def inception(width: int, height: int, a: int=4, b: int=7, c: int=3, data_augmen
 
 
 def resnet_v1(width: int, height: int, a: int=5, b: int=10, c: int=5, data_augmentation: layers.Layer=None, **kwargs):
-    m = models.Sequential()
-    if data_augmentation is not None:
-        m.add(data_augmentation)
-    m.add(layers.Rescaling(1. / 255, input_shape=(width, height, 1)))
+    m = model_head((width, height, 1), data_augmentation=data_augmentation)
     m.add(v1.StemV1(**kwargs))
     for _ in range(a):
         m.add(v1.inception_a(**kwargs))
@@ -39,10 +43,7 @@ def resnet_v1(width: int, height: int, a: int=5, b: int=10, c: int=5, data_augme
 
 
 def resnet_v2(width: int, height: int, a: int=5, b: int=10, c: int=5, data_augmentation: layers.Layer=None, **kwargs):
-    m = models.Sequential()
-    if data_augmentation is not None:
-        m.add(data_augmentation)
-    m.add(layers.Rescaling(1. / 255, input_shape=(width, height, 1)))
+    m = model_head((width, height, 1), data_augmentation=data_augmentation)
     m.add(Stem(**kwargs))
     for _ in range(a):
         m.add(v2.inception_a(**kwargs))

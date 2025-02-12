@@ -26,7 +26,7 @@ def create_model(
         width: int,
         height: int,
         data_augmentation: layers.Layer=None):
-    l: List[layers.Layer] = []
+    l: List[layers.Layer] = [layers.Input(shape=(width, height, 1))]
     if data_augmentation is not None:
         l.append(data_augmentation)
     l.extend([

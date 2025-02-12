@@ -29,6 +29,7 @@ class Residual(layers.Layer):
 
 def create_model(width: int, height: int, arch: Iterable[Tuple[int, int]], data_augmentation: layers.Layer=None):
     m = models.Sequential()
+    m.add(layers.Input(shape=(height, width, 1)))
     if data_augmentation is not None:
         m.add(data_augmentation)
     m.add(layers.Rescaling(1. / 255, input_shape=(width, height, 1)))
