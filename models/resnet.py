@@ -32,7 +32,7 @@ def create_model(width: int, height: int, arch: Iterable[Tuple[int, int]], data_
     m.add(layers.Input(shape=(height, width, 1)))
     if data_augmentation is not None:
         m.add(data_augmentation)
-    m.add(layers.Rescaling(1. / 255, input_shape=(width, height, 1)))
+    m.add(layers.Rescaling(1. / 255))
     m.add(layers.Conv2D(64, 7, 2, 'same'))
     m.add(layers.BatchNormalization())
     m.add(layers.ReLU())

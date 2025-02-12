@@ -30,7 +30,7 @@ def create_model(
     if data_augmentation is not None:
         l.append(data_augmentation)
     l.extend([
-        layers.Rescaling(1./255, input_shape=(width, height, 1)),
+        layers.Rescaling(1./255),
         layers.Conv2D(64, 7, strides=2, padding='same', activation="relu"),
         layers.MaxPool2D(3, strides=2, padding='same'),
         layers.Conv2D(64, 1, activation="relu"),

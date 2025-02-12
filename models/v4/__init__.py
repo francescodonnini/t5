@@ -12,7 +12,7 @@ def model_head(shape: Tuple[int, int, int], data_augmentation: layers.Layer=None
     m.add(layers.Input(shape=shape))
     if data_augmentation is not None:
         m.add(data_augmentation)
-    m.add(layers.Rescaling(1. / 255, input_shape=shape))
+    m.add(layers.Rescaling(1. / 255))
     return m
 
 def inception(width: int, height: int, a: int=4, b: int=7, c: int=3, data_augmentation: layers.Layer=None, **kwargs):
