@@ -2,6 +2,8 @@ from typing import List
 
 from keras import layers, models
 
+from models.common import model_head
+
 
 class InceptionV1(layers.Layer):
     def __init__(self, d1, d2, d3, d4, **kwargs):
@@ -26,29 +28,26 @@ def create_model(
         width: int,
         height: int,
         data_augmentation: layers.Layer=None):
-    l: List[layers.Layer] = [layers.Input(shape=(width, height, 1))]
-    if data_augmentation is not None:
-        l.append(data_augmentation)
-    l.extend([
-        layers.Rescaling(1./255),
-        layers.Conv2D(64, 7, strides=2, padding='same', activation="relu"),
-        layers.MaxPool2D(3, strides=2, padding='same'),
-        layers.Conv2D(64, 1, activation="relu"),
-        layers.Conv2D(192, 3, padding='same', activation="relu"),
-        layers.MaxPool2D(3, 2, padding='same'),
-        InceptionV1(64, (96, 128), (16, 32), 32),
-        InceptionV1(128, (128, 192), (32, 96), 64),
-        layers.MaxPool2D(3, 2, padding='same'),
-        InceptionV1(192, (96, 208), (16, 48), 64),
-        InceptionV1(160, (112, 224), (24, 64), 64),
-        InceptionV1(128, (128, 256), (24, 64), 64),
-        InceptionV1(112, (144, 288), (32, 64), 64),
-        InceptionV1(256, (160, 320), (32, 128), 128),
-        layers.MaxPool2D(3, 2, padding='same'),
-        InceptionV1(256, (160, 320), (32, 128), 128),
-        InceptionV1(384, (192, 384), (48, 128), 128),
-        layers.GlobalAveragePooling2D(),
-        layers.Flatten(),
-        layers.Dense(2, activation="softmax")])
-    model = models.Sequential(l)
-    return model
+    m = model_head((width, height, 1), data_augmentation)
+    m.add(layers.Conv2D(64, 7, strides=2, padding='same', activation="relu"))
+    m.add(layers.MaxPool2D(3, 2, padding='same'))
+    m.add(layers.Conv2D(64, 1, activation="relu"))
+    m.add(layers.Conv2D(192, 3, padding='same', activation="relu"))
+    m.add(layers.MaxPool2D(3, 2, padding='same'))
+    m.add(InceptionV1(64, (96, 128), (16, 32), 32))
+    m.add(InceptionV1(128, (128, 192), (32, 96), 64))
+    m.add(layers.MaxPool2D(3, 2, padding='same'))
+    m.add(InceptionV1(192, (96, 208), (16, 48), 64))
+    m.add(InceptionV1(160, (112, 224), (24, 64), 64))
+    m.add(InceptionV1(128, (128, 256), (24, 64), 64))
+    m.add(InceptionV1(112, (144, 288), (32, 64), 64))
+    m.add(InceptionV1(256, (160, 320), (32, 128), 128))
+    m.add(layers.MaxPool2D(3, 2, padding='same'))
+    m.add(InceptionV1(256, (160, 320), (32, 128), 128))
+    m.add(InceptionV1(384, (192, 384), (48, 128), 128))
+    m.add(layers.GlobalAveragePooling2D())
+    m.add(layers.Flatten())
+    m.add(layers.Dense(1024, activation='relu'))
+    m.add(layers.Dropout(0.4))
+    m.add(layers.Dense(2, activation="softmax"))
+    return m
