@@ -135,6 +135,8 @@ def create_model(
     for _ in range(c):
         m.add(InceptionV3C())
     m.add(layers.GlobalAvgPool2D())
+    m.add(layers.Dropout(0.2))
     m.add(layers.Flatten())
+    m.add(layers.Dropout(0.5))
     m.add(layers.Dense(2, activation='softmax'))
     return m
