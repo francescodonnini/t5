@@ -1,6 +1,6 @@
 from keras import layers, models, Model
 
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 
 def model_head(shape: Tuple[int, int, int], data_augmentation: layers.Layer=None) -> models.Sequential:
@@ -18,7 +18,7 @@ def conv_block(
         strides: int|Tuple[int, int]=1,
         padding: int|str='same',
         activation: Optional[str]=None) -> layers.Layer:
-    l = []
+    l: List[layers.Layer] = []
     if type(padding) is int:
         l.append(layers.ZeroPadding2D((padding, padding)))
         padding = 'valid'
