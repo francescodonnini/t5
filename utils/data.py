@@ -76,10 +76,11 @@ def _prepare_data(
 
 def over_sampling(
         xs: npt.NDArray[np.uint8],
-        ys: npt.NDArray[np.float32]) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
+        ys: npt.NDArray[np.float32],
+        ratio: float=1.0) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
     positives = len(list(filter(lambda y: y[1] > 0, ys)))
     negatives = int(abs(len(ys) - positives))
-    gap = int(abs(positives - negatives))
+    gap = int(int(abs(positives - negatives)) * ratio)
     which = 0 if negatives < positives else 1
     idx_min = list(filter(lambda j: ys[j][which] > 0, range(len(ys))))
     x_min = [xs[i] for i in idx_min]
