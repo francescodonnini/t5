@@ -78,6 +78,8 @@ def over_sampling(
         xs: npt.NDArray[np.uint8],
         ys: npt.NDArray[np.float32],
         ratio: float=1.0) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
+    if ratio > 1 or ratio < 0:
+        raise ValueError('ratio must be between 0 and 1')
     positives = len(list(filter(lambda y: y[1] > 0, ys)))
     negatives = int(abs(len(ys) - positives))
     gap = int(int(abs(positives - negatives)) * ratio)
