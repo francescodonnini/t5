@@ -11,7 +11,7 @@ def create_model(
         resize: Tuple[int, int]=(224, 224),
         data_augmentation: layers.Layer=None) -> Model:
     width, height = resize
-    if name == 'alex_net':
+    if name == 'alex-net':
         return alex_net.create_model(width, height, data_augmentation=data_augmentation)
     elif name == 'googlenet':
         return googlenet.create_model(width, height, data_augmentation=data_augmentation)

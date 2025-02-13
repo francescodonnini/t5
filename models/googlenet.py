@@ -45,7 +45,7 @@ def create_model(
     m.add(layers.MaxPool2D(3, 2, padding='same'))
     m.add(InceptionV1(256, (160, 320), (32, 128), 128))
     m.add(InceptionV1(384, (192, 384), (48, 128), 128))
-    m.add(layers.GlobalAvgPool2D(5))
+    m.add(layers.AvgPool2D(5))
     m.add(layers.Flatten())
     m.add(layers.Dense(1024, activation='relu'))
     m.add(layers.Dropout(0.4))

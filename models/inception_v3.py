@@ -5,16 +5,16 @@ class InceptionV3A(layers.Layer):
     def __init__(self, **kwargs):
         super(InceptionV3A, self).__init__(**kwargs)
         self.b1x1 = conv_block(64, 1)
-        self.b5x5 = models.Sequential([
+        self.b5x5 = layers.Pipeline([
             conv_block(48, 1, activation='relu'),
             conv_block(64, 3, activation='relu'),
             conv_block(64, 3, activation='relu')
         ])
-        self.b3x3 = models.Sequential([
+        self.b3x3 = layers.Pipeline([
             conv_block(64, 1, activation='relu'),
             conv_block(96, 3, activation='relu'),
         ])
-        self.b_pool = models.Sequential([
+        self.b_pool = layers.Pipeline([
             layers.AvgPool2D(3, 1, padding='same'),
             conv_block(64, 1)
         ])
@@ -31,18 +31,18 @@ class InceptionV3A(layers.Layer):
 class InceptionV3B(layers.Layer):
     def __init__(self, n: int=7, **kwargs):
         super(InceptionV3B, self).__init__(**kwargs)
-        self.col1 = models.Sequential([
+        self.col1 = layers.Pipeline([
             conv_block(128, 1, activation="relu"),
             conv_block(128, (n, 1), activation="relu"),
             conv_block(128, (1, n), activation="relu"),
             conv_block(128, (n, 1), activation="relu"),
             conv_block(192, (1, n), activation="relu")])
-        self.col2 = models.Sequential([
+        self.col2 = layers.Pipeline([
             conv_block(128, 1, activation="relu"),
             conv_block(128, (n, 1), activation="relu"),
             conv_block(192, (1, n), activation="relu"),
         ])
-        self.col3 = models.Sequential([
+        self.col3 = layers.Pipeline([
             layers.AvgPool2D(3, 1, padding="same"),
             conv_block(192, 1, activation="relu"),
         ])
@@ -62,7 +62,7 @@ class InceptionV3C(layers.Layer):
         self.c12 = conv_block(448, 1, activation="relu")
         self.c22_1 = conv_block(384, (1, 3), activation="relu")
         self.c22_2 = conv_block(384, (3, 1), activation="relu")
-        self.col3 = models.Sequential([
+        self.col3 = layers.Pipeline([
             layers.AvgPool2D(3, 1, padding="same"),
             conv_block(192, 1, activation="relu"),
         ])
@@ -81,7 +81,7 @@ class ReductionA(layers.Layer):
     def __init__(self, **kwargs):
         super(ReductionA, self).__init__(**kwargs)
         self.col1 = conv_block(384, 3, 2, padding="valid", activation='relu')
-        self.col2 = models.Sequential([
+        self.col2 = layers.Pipeline([
             conv_block(64, 1, activation='relu'),
             conv_block(96, 3, activation='relu'),
             conv_block(96, 3, 2, padding='valid', activation='relu'),
@@ -95,11 +95,11 @@ class ReductionA(layers.Layer):
 class ReductionB(layers.Layer):
     def __init__(self, **kwargs):
         super(ReductionB, self).__init__(**kwargs)
-        self.col1 = models.Sequential([
+        self.col1 = layers.Pipeline([
             conv_block(192, 1, activation='relu'),
             conv_block(320, 3, 2, padding='valid', activation='relu'),
         ])
-        self.col2 = models.Sequential([
+        self.col2 = layers.Pipeline([
             conv_block(192, 1, activation='relu'),
             conv_block(192, (1, 7), activation='relu'),
             conv_block(192, (7, 1), activation='relu'),
@@ -137,5 +137,7 @@ def create_model(
     m.add(layers.AvgPool2D(5))
     m.add(layers.Dropout(0.2))
     m.add(layers.Flatten())
+    m.add(layers.Dense(1024, activation='linear'))
+    m.add(layers.Dropout(0.5))
     m.add(layers.Dense(2, activation='softmax'))
     return m
