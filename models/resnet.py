@@ -1,12 +1,14 @@
-from typing import Tuple, List, Iterable
+from typing import Tuple, Iterable
 
 from keras import activations, layers, models
+
+from models.common import model_head, conv_block
 
 
 class Residual(layers.Layer):
     def __init__(self, filters: int, strides: int=1, use_conv1x1=False):
         super(Residual, self).__init__()
-        self.block = models.Sequential([
+        self.block = layers.Pipeline([
             layers.Conv2D(filters, 3, strides, 'same'),
             layers.BatchNormalization(),
             layers.ReLU(),
@@ -16,8 +18,6 @@ class Residual(layers.Layer):
         self.conv1x1 = None
         if use_conv1x1:
             self.conv1x1 = layers.Conv2D(filters, 1, strides)
-        self.b1 = layers.BatchNormalization()
-        self.b2 = layers.BatchNormalization()
 
     def call(self, inputs):
         z = self.block(inputs)
@@ -28,14 +28,8 @@ class Residual(layers.Layer):
 
 
 def create_model(width: int, height: int, arch: Iterable[Tuple[int, int]], data_augmentation: layers.Layer=None):
-    m = models.Sequential()
-    m.add(layers.Input(shape=(height, width, 1)))
-    if data_augmentation is not None:
-        m.add(data_augmentation)
-    m.add(layers.Rescaling(1. / 255))
-    m.add(layers.Conv2D(64, 7, 2, 'same'))
-    m.add(layers.BatchNormalization())
-    m.add(layers.ReLU())
+    m = model_head((width, height, 1), data_augmentation)
+    m.add(conv_block(64, 7, 2, activation='relu'))
     m.add(layers.MaxPool2D(3, 2, 'same'))
     for i, b in enumerate(arch):
         m.add(block(*b, first_block=i==0))
@@ -44,10 +38,10 @@ def create_model(width: int, height: int, arch: Iterable[Tuple[int, int]], data_
     return m
 
 
-def block(num_residuals: int, num_channels: int, first_block: bool=False):
-    m = models.Sequential()
+def block(num_residuals: int, num_channels: int, first_block: bool=False) -> layers.Layer:
+    l = []
     if not first_block:
-        m.add(Residual(num_channels, use_conv1x1=True, strides=2))
+        l.append(Residual(num_channels, use_conv1x1=True, strides=2))
     for _ in range(num_residuals - 1):
-        m.add(Residual(num_channels))
-    return m
+        l.append(Residual(num_channels))
+    return layers.Pipeline(l)

@@ -17,13 +17,13 @@ def conv_block(
         kernel_size: int|Tuple[int, int],
         strides: int|Tuple[int, int]=1,
         padding: int|str='same',
-        activation: Optional[str]=None) -> Model:
-    m = models.Sequential()
+        activation: Optional[str]=None) -> layers.Layer:
+    l = []
     if type(padding) is int:
-        m.add(layers.ZeroPadding2D((padding, padding)))
+        l.append(layers.ZeroPadding2D((padding, padding)))
         padding = 'valid'
-    m.add(layers.Conv2D(filters, kernel_size, strides=strides, padding=padding))
-    m.add(layers.BatchNormalization())
+    l.append(layers.Conv2D(filters, kernel_size, strides=strides, padding=padding))
+    l.append(layers.BatchNormalization())
     if activation is not None:
-        m.add(layers.Activation(activation))
-    return m
+        l.append(layers.Activation(activation))
+    return layers.Pipeline(l)
