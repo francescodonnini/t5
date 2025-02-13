@@ -134,7 +134,7 @@ def create_model(
     m.add(ReductionB())
     for _ in range(c):
         m.add(InceptionV3C())
-    m.add(layers.AvgPool2D(5))
+    m.add(layers.GlobalAvgPool2D(5))
     m.add(layers.Dropout(0.2))
     m.add(layers.Flatten())
     m.add(layers.Dense(1024, activation='linear'))
