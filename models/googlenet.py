@@ -47,7 +47,7 @@ def create_model(
     m.add(InceptionV1(384, (192, 384), (48, 128), 128))
     m.add(layers.GlobalAvgPool2D())
     m.add(layers.Flatten())
-    m.add(layers.Dense(1024, activation='relu'))
+    m.add(layers.Dense(1024, activation='linear'))
     m.add(layers.Dropout(0.4))
     m.add(layers.Dense(2, activation="softmax"))
     return m
