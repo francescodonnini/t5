@@ -1,17 +1,7 @@
-from typing import Tuple, Optional
+from keras import layers
 
-from keras import layers, models, Model
+from models.common import model_head, conv_block
 
-from models.common import model_head
-
-
-def conv_block(filters: int, kernel_size: int|Tuple[int, int], strides: int|Tuple[int, int]=1, padding: int|str='same', activation: Optional[str]=None) -> Model:
-    m = models.Sequential()
-    m.add(layers.Conv2D(filters, kernel_size, strides=strides, padding=padding))
-    m.add(layers.BatchNormalization())
-    if activation is not None:
-        m.add(layers.Activation(activation))
-    return m
 
 def create_model(
         width: int,

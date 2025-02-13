@@ -1,4 +1,4 @@
-from models.v4 import ReductionA
+from models.v4.base import ReductionA
 from models.v4.resnet_vx import InceptionAVx, InceptionWVx, ReductionBVx
 
 

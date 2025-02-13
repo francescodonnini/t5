@@ -2,7 +2,7 @@ from typing import List
 
 from keras import layers, models
 
-from models.common import model_head
+from models.common import model_head, conv_block
 
 
 class InceptionV1(layers.Layer):
@@ -29,10 +29,10 @@ def create_model(
         height: int,
         data_augmentation: layers.Layer=None):
     m = model_head((width, height, 1), data_augmentation)
-    m.add(layers.Conv2D(64, 7, strides=2, padding='same', activation="relu"))
+    m.add(conv_block(64, 7, 2, padding='same', activation="relu"))
     m.add(layers.MaxPool2D(3, 2, padding='same'))
-    m.add(layers.Conv2D(64, 1, activation="relu"))
-    m.add(layers.Conv2D(192, 3, padding='same', activation="relu"))
+    m.add(conv_block(64, 1, activation="relu"))
+    m.add(conv_block(192, 3, padding='same', activation="relu"))
     m.add(layers.MaxPool2D(3, 2, padding='same'))
     m.add(InceptionV1(64, (96, 128), (16, 32), 32))
     m.add(InceptionV1(128, (128, 192), (32, 96), 64))
@@ -45,7 +45,7 @@ def create_model(
     m.add(layers.MaxPool2D(3, 2, padding='same'))
     m.add(InceptionV1(256, (160, 320), (32, 128), 128))
     m.add(InceptionV1(384, (192, 384), (48, 128), 128))
-    m.add(layers.GlobalAveragePooling2D())
+    m.add(layers.GlobalAvgPool2D(5))
     m.add(layers.Flatten())
     m.add(layers.Dense(1024, activation='relu'))
     m.add(layers.Dropout(0.4))
