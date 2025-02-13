@@ -9,6 +9,7 @@ def model_head(shape: Tuple[int, int, int], data_augmentation: layers.Layer=None
     if data_augmentation is not None:
         m.add(data_augmentation)
     m.add(layers.Rescaling(1. / 255))
+    m.add(layers.Normalization())
     return m
 
 def conv_block(
