@@ -1,6 +1,6 @@
 from typing import Tuple, Iterable
 
-from keras import activations, layers, models
+from keras import activations, layers
 
 from models.common import model_head, conv_block
 
@@ -27,7 +27,11 @@ class Residual(layers.Layer):
         return activations.relu(z)
 
 
-def create_model(width: int, height: int, arch: Iterable[Tuple[int, int]], data_augmentation: layers.Layer=None):
+def create_model(
+        width: int,
+        height: int,
+        arch: Iterable[Tuple[int, int]],
+        data_augmentation: layers.Layer=None):
     m = model_head((width, height, 1), data_augmentation)
     m.add(conv_block(64, 7, 2, activation='relu'))
     m.add(layers.MaxPool2D(3, 2, 'same'))

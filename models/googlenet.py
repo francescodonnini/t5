@@ -6,20 +6,22 @@ from models.common import model_head, conv_block
 class InceptionV1(layers.Layer):
     def __init__(self, d1, d2, d3, d4, **kwargs):
         super(InceptionV1, self).__init__(**kwargs)
-        self.b1_1 = layers.Conv2D(d1, 1, activation='relu')
-        self.b2_1 = layers.Conv2D(d2[0], 1, activation='relu')
-        self.b2_2 = layers.Conv2D(d2[1], 3, padding='same', activation='relu')
-        self.b3_1 = layers.Conv2D(d3[0], 1, activation='relu')
-        self.b3_2 = layers.Conv2D(d3[1], 5, padding='same', activation='relu')
-        self.b4_1 = layers.MaxPool2D(3, 1, padding='same')
-        self.b4_2 = layers.Conv2D(d4, 1, activation='relu')
+        self.col1 = layers.Conv2D(d1, 1, activation='relu')
+        self.col2 = layers.Pipeline([
+            layers.Conv2D(d2[0], 1, activation='relu'),
+            layers.Conv2D(d2[1], 3, padding='same', activation='relu')
+        ])
+        self.col3 = layers.Pipeline([
+            layers.Conv2D(d3[0], 1, activation='relu'),
+            layers.Conv2D(d3[1], 5, padding='same', activation='relu')
+        ])
+        self.col4 = layers.Pipeline([
+            layers.MaxPool2D(3, 1, padding='same'),
+            layers.Conv2D(d4, 1, activation='relu')
+        ])
 
     def call(self, inputs):
-        b1 = self.b1_1(inputs)
-        b2 = self.b2_2(self.b2_1(inputs))
-        b3 = self.b3_2(self.b3_1(inputs))
-        b4 = self.b4_2(self.b4_1(inputs))
-        return layers.Concatenate()([b1, b2, b3, b4])
+        return layers.Concatenate()([self.col1(inputs), self.col2(inputs), self.col3(inputs), self.col4(inputs)])
 
 
 def create_model(

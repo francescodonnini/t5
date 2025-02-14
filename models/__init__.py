@@ -9,7 +9,8 @@ from models.v4 import inception
 def create_model(
         name: str,
         resize: Tuple[int, int]=(224, 224),
-        data_augmentation: layers.Layer=None) -> Model:
+        data_augmentation: layers.Layer=None,
+        **kwargs) -> Model:
     width, height = resize
     if name == 'alex-net':
         return alex_net.create_model(width, height, data_augmentation=data_augmentation)
@@ -18,12 +19,6 @@ def create_model(
     elif name == 'resnet-18':
         return resnet.create_model(width, height,((2, 64), (2, 128), (2, 512)), data_augmentation=data_augmentation)
     elif name == 'inception-v3':
-        return inception_v3.create_model(width, height, data_augmentation=data_augmentation)
-    elif name == 'inception-v4':
-        return v4.inception(width, height, data_augmentation=data_augmentation)
-    elif name == 'resnet-v1':
-        return v4.resnet_v1(width, height, data_augmentation=data_augmentation)
-    elif name == 'resnet-v2':
-        return v4.resnet_v2(width, height, data_augmentation=data_augmentation)
+        return inception_v3.create_model(width, height, data_augmentation=data_augmentation, **kwargs)
     else:
         raise ValueError(f'unknown model name: {name}')
