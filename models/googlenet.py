@@ -1,6 +1,4 @@
-from typing import List
-
-from keras import layers, models
+from keras import layers
 
 from models.common import model_head, conv_block
 
