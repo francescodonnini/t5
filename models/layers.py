@@ -1,6 +1,7 @@
 import random
-import numpy as np
+
 from collections.abc import Iterable
+from keras import saving
 from typing import List, Any
 
 from keras import layers
@@ -9,6 +10,7 @@ from keras import layers
 RandomSwitch supplies the input x to one of the layers (randomly chosen) stored in choices
 with probability p
 '''
+@saving.register_keras_serializable(package='layers')
 class RandomSwitch(layers.Layer):
     def __init__(self, choices: List[layers.Layer], probability: float, **kwargs):
         super(RandomSwitch, self).__init__(**kwargs)
@@ -20,6 +22,20 @@ class RandomSwitch(layers.Layer):
             self.probability = probability
         else:
             raise ValueError('probability must be a float comprised between 0 and 1')
+
+    @classmethod
+    def from_config(cls, config):
+        probability = saving.deserialize_keras_object(config.pop('probability'))
+        choices = saving.deserialize_keras_object(config.pop('choices'))
+        return cls(choices, probability, **config)
+
+    def get_config(self):
+        base_config = super().get_config()
+        base_config.update({
+            'probability': saving.serialize_keras_object(self.probability),
+            'choices': saving.serialize_keras_object(self.choices)
+        })
+        return base_config
 
     @staticmethod
     def _is_keras_layer(i: Any) -> bool:
