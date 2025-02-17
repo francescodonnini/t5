@@ -17,8 +17,6 @@ def create_model(
     m.add(conv_block(256, 3, activation='relu'))
     m.add(layers.MaxPool2D(3, 2))
     m.add(layers.Flatten())
-    m.add(layers.Dense(9216, activation='relu'))
-    m.add(layers.Dropout(0.5))
     m.add(layers.Dense(4096, activation='relu'))
     m.add(layers.Dropout(0.5))
     m.add(layers.Dense(4096, activation='relu'))
