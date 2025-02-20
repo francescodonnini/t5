@@ -138,5 +138,5 @@ def create_model(
     m.add(layers.Dropout(0.2))
     m.add(layers.Flatten())
     m.add(layers.Dropout(0.5))
-    m.add(layers.Dense(2, activation='softmax'))
+    m.add(layers.Dense(1, activation='sigmoid'))
     return m

@@ -8,15 +8,14 @@ from typing import List, Tuple, Callable, Iterable
 import numpy as np
 import numpy.typing as npt
 from PIL import Image
-from keras import utils
 
 
-def mklbl(i: Image) -> int:
+def mklbl(i: Image) -> np.ndarray:
     s = os.path.basename(i.filename)
     if s.startswith('NORMAL'):
-        return 0
+        return np.asarray([0])
     elif s.startswith('VIRUS') or s.startswith('BACTERIA'):
-        return 1
+        return np.asarray([1])
     else:
         raise ValueError(f'invalid string {s}')
 
@@ -72,7 +71,7 @@ def _prepare_data(
         if resize is not None:
             i = resample(i, resize)
         xs.append(np.asarray(i, dtype=np.uint8).reshape(i.height, i.width, 1))
-    return np.asarray(xs), utils.to_categorical(ys, num_classes=2)
+    return np.asarray(xs), np.asarray(ys)
 
 def over_sampling(
         xs: npt.NDArray[np.uint8],
@@ -80,11 +79,11 @@ def over_sampling(
         ratio: float=1.0) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
     if ratio > 1 or ratio < 0:
         raise ValueError('ratio must be between 0 and 1')
-    positives = len(list(filter(lambda y: y[1] > 0, ys)))
+    positives = len(list(filter(lambda y: y == 1, ys)))
     negatives = int(abs(len(ys) - positives))
     gap = int(int(abs(positives - negatives)) * ratio)
     which = 0 if negatives < positives else 1
-    idx_min = list(filter(lambda j: ys[j][which] > 0, range(len(ys))))
+    idx_min = list(filter(lambda j: ys[j] == which, range(len(ys))))
     x_min = [xs[i] for i in idx_min]
     y_min = [ys[i] for i in idx_min]
     xs_extras = []

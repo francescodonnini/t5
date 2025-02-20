@@ -38,7 +38,7 @@ def create_model(
     for i, b in enumerate(arch):
         m.add(block(*b, first_block=i==0))
     m.add(layers.GlobalAvgPool2D())
-    m.add(layers.Dense(2, activation='softmax'))
+    m.add(layers.Dense(1, activation='sigmoid'))
     return m
 
 

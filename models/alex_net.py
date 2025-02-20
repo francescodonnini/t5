@@ -21,5 +21,5 @@ def create_model(
     m.add(layers.Dropout(0.5))
     m.add(layers.Dense(4096, activation='relu'))
     m.add(layers.Dropout(0.5))
-    m.add(layers.Dense(2, activation='softmax'))
+    m.add(layers.Dense(1, activation='sigmoid'))
     return m
