@@ -1,6 +1,5 @@
 from typing import Tuple, Optional, List
 
-import numpy as np
 from keras import layers, models
 
 
