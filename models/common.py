@@ -15,7 +15,7 @@ class SequentialWithThreshold(models.Sequential):
 
     def predict(self, x, batch_size=None, verbose="auto", steps=None, callbacks=None):
         y = super().predict(x, batch_size=batch_size, verbose=verbose, steps=steps, callbacks=callbacks)
-        return np.astype(y > self.threshold, int)
+        return (y > self.threshold).astype(int)
 
     def get_threshold(self) -> float:
         return self.threshold
