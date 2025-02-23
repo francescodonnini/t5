@@ -1,4 +1,4 @@
-from models.common import model_head, conv_block
+from core.common import model_head, conv_block
 from keras import layers, models
 
 class InceptionV3A(layers.Layer):

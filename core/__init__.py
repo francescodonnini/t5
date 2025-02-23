@@ -2,8 +2,8 @@ from typing import Tuple
 
 from keras import layers, Model
 
-from models import alex_net, googlenet, resnet, inception_v3, v4
-from models.v4 import inception
+from core import alex_net, googlenet, resnet, inception_v3, v4
+from core.v4 import inception
 
 
 def create_model(

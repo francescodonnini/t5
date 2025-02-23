@@ -1,6 +1,6 @@
 from keras import layers
 
-from models.common import model_head, conv_block
+from core.common import model_head, conv_block
 
 
 def create_model(

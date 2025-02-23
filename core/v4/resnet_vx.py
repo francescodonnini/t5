@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from keras import activations, layers
 
-from models.v4.base import conv
+from core.v4.base import conv
 
 
 class InceptionAVx(layers.Layer):

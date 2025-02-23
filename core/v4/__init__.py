@@ -1,10 +1,10 @@
 from keras import layers, models
 
-import models.v4.resnet_v1 as v1
-import models.v4.resnet_v2 as v2
-from models.common import model_head
-from models.v4.base import Stem, InceptionA, InceptionB, InceptionC, ReductionA, ReductionB
-from models.v4.resnet_vx import InceptionAVx
+import core.v4.resnet_v1 as v1
+import core.v4.resnet_v2 as v2
+from core.common import model_head
+from core.v4.base import Stem, InceptionA, InceptionB, InceptionC, ReductionA, ReductionB
+from core.v4.resnet_vx import InceptionAVx
 
 
 def inception(width: int, height: int, a: int=4, b: int=7, c: int=3, data_augmentation: layers.Layer=None, **kwargs):

@@ -2,7 +2,7 @@ from typing import Tuple, Iterable
 
 from keras import activations, layers
 
-from models.common import model_head, conv_block
+from core.common import model_head, conv_block
 
 
 class Residual(layers.Layer):
