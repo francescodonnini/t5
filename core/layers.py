@@ -57,6 +57,51 @@ class RandomSwitch(layers.Layer):
         return input_shape
 
 
+class RandomApply(layers.Layer):
+    def __init__(self, probability: float, layer: layers.Layer, **kwargs):
+        super(RandomApply, self).__init__(**kwargs)
+        self.probability = RandomApply.check_probability(probability)
+        self.layer = RandomApply.check_layer(layer)
+
+    @staticmethod
+    def check_layer(layer: layers.Layer):
+        if not isinstance(layer, layers.Layer):
+            raise ValueError('layer must be a keras.Layer')
+        return layer
+
+    @staticmethod
+    def check_probability(probability: float):
+        if not isinstance(probability, float) or probability < 0 or probability > 1:
+            raise ValueError('probability must be a float between 0 and 1')
+        return probability
+
+    @classmethod
+    def from_config(cls, config):
+        probability = saving.deserialize_keras_object(config.pop('probability'))
+        layer = saving.deserialize_keras_object(config.pop('layer'))
+        return cls(probability, layer, **config)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            'probability': saving.serialize_keras_object(self.probability),
+            'layer': saving.serialize_keras_object(self.layer)
+        })
+        return config
+
+    def build(self, input_shape):
+        super(RandomApply, self).build(input_shape)
+
+    def call(self, inputs, training=None):
+        if training:
+            if random.uniform(0, 1) < self.probability:
+                return self.layer(inputs)
+        return inputs
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+
 class RandomCutout(layers.Layer):
     def __init__(self, size: Tuple[int, int]|int=16,  n_holes: int=1, name=None, **kwargs):
         super(RandomCutout, self).__init__(name=name, **kwargs)
