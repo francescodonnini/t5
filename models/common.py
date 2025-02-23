@@ -4,8 +4,14 @@ from keras import layers, models
 
 
 class SequentialWithThreshold(models.Sequential):
-    def __init__(self, threshold: float):
+    def __init__(self, threshold: float=Optional[0.5]):
         super(SequentialWithThreshold, self).__init__()
+        if threshold is None:
+            self.threshold = None
+        else:
+            self._set_threshold(threshold)
+
+    def _set_threshold(self, threshold: float):
         if not isinstance(threshold, float):
             raise TypeError('Threshold must be a float')
         elif threshold < 0.0 or threshold > 1.0:
@@ -16,11 +22,11 @@ class SequentialWithThreshold(models.Sequential):
         y = super().predict(x, batch_size=batch_size, verbose=verbose, steps=steps, callbacks=callbacks)
         return (y > self.threshold).astype(int)
 
-    def get_threshold(self) -> float:
+    def get_threshold(self) -> Optional[float]:
         return self.threshold
 
     def set_threshold(self, threshold: float):
-        self.threshold = threshold
+        self._set_threshold(threshold)
 
 def model_head(shape: Tuple[int, int, int], data_augmentation: layers.Layer=None) -> models.Sequential:
     m = SequentialWithThreshold(0.5)
