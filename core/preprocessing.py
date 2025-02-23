@@ -2,6 +2,12 @@ import numpy as np
 import tensorflow as tf
 
 
+def mixup(sample_a, sample_b, alpha):
+    img_a, y_a = sample_a
+    img_b, y_b = sample_b
+    lambd_ = np.random.beta(alpha, alpha)
+    return lambd_ * img_a + (1 - lambd_) * img_b, lambd_ * y_a + (1 - lambd_) * y_b
+
 def cutmix(sample_a, sample_b):
     img_a, y_a = sample_a
     img_b, y_b = sample_b
