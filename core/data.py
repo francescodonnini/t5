@@ -41,7 +41,7 @@ def from_dir(
         data_path: str,
         resize: Tuple[int, int],
         resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear,
-        file_format: str='.jpeg') -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
+        file_format: str='.jpeg') -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float32]]:
     images = [Image.open(p) for p in pathlib.Path(data_path).glob(f'**/*{file_format}')]
     return _prepare_data(images, resize, resample)
 
@@ -50,7 +50,7 @@ def from_zip(
         data_path: str,
         selector: Callable[[str], bool],
         resize: Tuple[int, int],
-        resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]:
+        resample: Callable[[Image.Image, Tuple[int, int]], Image.Image]=bilinear) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float32]]:
     with zf.ZipFile(data_path) as z:
         images = []
         for file in filter(lambda f: selector(f), z.namelist()):
@@ -64,13 +64,14 @@ def _prepare_data(
         images: Iterable[Image.Image],
         resize,
         resample):
-    xs: List[npt.NDArray[np.uint8]] = []
-    ys: List[int] = []
+    xs: List[npt.NDArray[np.float64]] = []
+    ys: List[npt.NDArray[np.float32]] = []
     for i in images:
         ys.append(mklbl(i))
         if resize is not None:
             i = resample(i, resize)
-        xs.append(np.asarray(i, dtype=np.uint8).reshape(i.height, i.width, 1))
+        x = np.asarray(i, dtype=np.uint8).reshape(i.height, i.width, 1) / 255.0
+        xs.append(x)
     return np.asarray(xs), np.asarray(ys)
 
 def over_sampling(
