@@ -1,4 +1,3 @@
-import random
 from collections.abc import Iterable
 from typing import List, Tuple
 
@@ -45,7 +44,7 @@ class RandomApply(ly.Layer):
 
     def call(self, inputs, training=None):
         if training:
-            if random.uniform(0, 1) < self.probability:
+            if np.random.uniform(0, 1) < self.probability:
                 return self.layer(inputs)
         return inputs
 
@@ -153,7 +152,7 @@ class RandomSample(ly.Layer):
     def samples(self) -> Iterable[int]:
         s = list(range(len(self.layer_list)))
         for _ in range(2):
-            random.shuffle(s)
+            np.random.shuffle(s)
         return list(s[:self.n])
 
     def random_sample(self) -> int:
