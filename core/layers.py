@@ -1,23 +1,22 @@
-import tensorflow as tf
-import numpy as np
 import random
-
 from collections.abc import Iterable
+from typing import List, Tuple
+
+import numpy as np
+import tensorflow as tf
+from keras import layers as ly
 from keras import saving
-from typing import List, Any, Tuple
-
-from keras import layers
 
 
-class RandomApply(layers.Layer):
-    def __init__(self, probability: float, layer: layers.Layer, **kwargs):
+class RandomApply(ly.Layer):
+    def __init__(self, probability: float, layer: ly.Layer, **kwargs):
         super(RandomApply, self).__init__(**kwargs)
         self.probability = RandomApply.check_probability(probability)
         self.layer = RandomApply.check_layer(layer)
 
     @staticmethod
-    def check_layer(layer: layers.Layer):
-        if not isinstance(layer, layers.Layer):
+    def check_layer(layer: ly.Layer):
+        if not isinstance(layer, ly.Layer):
             raise ValueError('layer must be a keras.Layer')
         return layer
 
@@ -54,7 +53,7 @@ class RandomApply(layers.Layer):
         return input_shape
 
 
-class RandomCutout(layers.Layer):
+class RandomCutout(ly.Layer):
     def __init__(self, size: Tuple[int, int]|int=16,  n_holes: int=1, name=None, **kwargs):
         super(RandomCutout, self).__init__(name=name, **kwargs)
         self.target_width, self.target_height = RandomCutout.check_target_size(size)
@@ -93,7 +92,7 @@ class RandomCutout(layers.Layer):
 
     def call(self, inputs, training=True):
         if training:
-            return np.asarray([self.cutout(i) for i in inputs])
+            return tf.map_fn(self.cutout, inputs)
         return inputs
 
     def compute_output_shape(self, input_shape):
@@ -122,8 +121,8 @@ class RandomCutout(layers.Layer):
         return x1, y1, x2, y2
 
 
-class RandomSample(layers.Layer):
-    def __init__(self, layer_list: List[layers.Layer], n: int, name=None, **kwargs):
+class RandomSample(ly.Layer):
+    def __init__(self, layer_list: List[ly.Layer], n: int, name=None, **kwargs):
         super(RandomSample, self).__init__(name=name, **kwargs)
         self.layer_list = layer_list
         self.n = n
