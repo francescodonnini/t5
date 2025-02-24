@@ -165,3 +165,45 @@ class RandomCutout(layers.Layer):
         x1 = np.clip(c_x - target_w // 2, 0, w)
         x2 = np.clip(c_x + target_w // 2, 0, w)
         return x1, y1, x2, y2
+
+
+class RandomSample(layers.Layer):
+    def __init__(self, layer_list: List[layers.Layer], n: int, name=None, **kwargs):
+        super(RandomSample, self).__init__(name=name, **kwargs)
+        self.layer_list = layer_list
+        self.n = n
+
+    @classmethod
+    def from_config(cls, config):
+        n = saving.deserialize_keras_object(config.pop('n'))
+        layer_list = saving.deserialize_keras_object(config.pop('layer_list'))
+        return cls(n, layer_list, **config)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            'n': saving.serialize_keras_object(self.n),
+            'layer_list': saving.serialize_keras_object(self.layer_list)
+        })
+        return config
+
+    def build(self, input_shape):
+        super(RandomSample, self).build(input_shape)
+
+    def call(self, inputs, training=None):
+        if training:
+            for i in self.samples():
+                inputs = self.layer_list[i](inputs)
+        return inputs
+
+    def samples(self) -> Iterable[int]:
+        s = list(range(len(self.layer_list)))
+        for _ in range(2):
+            random.shuffle(s)
+        return list(s[:self.n])
+
+    def random_sample(self) -> int:
+        return np.random.randint(0, len(self.layer_list) - 1)
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
