@@ -17,7 +17,7 @@ def create_model(
     elif name == 'googlenet':
         return googlenet.create_model(width, height, data_augmentation=data_augmentation)
     elif name == 'resnet-18':
-        return resnet.create_model(width, height,((2, 64), (2, 128), (2, 512)), data_augmentation=data_augmentation)
+        return resnet.create_model(width, height,((2, 64), (2, 128), (2, 256), (2, 512)), data_augmentation=data_augmentation)
     elif name == 'inception-v3':
         return inception_v3.create_model(width, height, data_augmentation=data_augmentation, **kwargs)
     else:

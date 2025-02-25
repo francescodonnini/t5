@@ -15,15 +15,13 @@ class Residual(layers.Layer):
             layers.Conv2D(filters, 3, 1, 'same'),
             layers.BatchNormalization(),
         ])
-        self.conv1x1 = None
         if use_conv1x1:
-            self.conv1x1 = layers.Conv2D(filters, 1, strides)
+            self.skip = layers.Conv2D(filters, 1, strides)
+        else:
+            self.skip = layers.Identity()
 
     def call(self, inputs):
-        z = self.block(inputs)
-        if self.conv1x1:
-            inputs = self.conv1x1(inputs)
-        z = layers.Add()([z, inputs])
+        z = layers.add(self.skip(inputs), self.block(inputs))
         return activations.relu(z)
 
 
@@ -36,13 +34,13 @@ def create_model(
     m.add(conv_block(64, 7, 2, activation='relu'))
     m.add(layers.MaxPool2D(3, 2, 'same'))
     for i, b in enumerate(arch):
-        m.add(block(*b, first_block=i==0))
+        m.add(residual_block(*b, first_block=i==0))
     m.add(layers.GlobalAvgPool2D())
     m.add(layers.Dense(1, activation='sigmoid'))
     return m
 
 
-def block(num_residuals: int, num_channels: int, first_block: bool=False) -> layers.Layer:
+def residual_block(num_residuals: int, num_channels: int, first_block: bool=False) -> layers.Layer:
     l = []
     if not first_block:
         l.append(Residual(num_channels, use_conv1x1=True, strides=2))
