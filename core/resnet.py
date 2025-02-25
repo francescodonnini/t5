@@ -21,7 +21,7 @@ class Residual(layers.Layer):
             self.skip = layers.Identity()
 
     def call(self, inputs):
-        z = layers.add(self.skip(inputs), self.block(inputs))
+        z = layers.add([self.skip(inputs), self.block(inputs)])
         return activations.relu(z)
 
 
